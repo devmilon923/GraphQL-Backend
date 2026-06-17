@@ -5,22 +5,32 @@ dotenv.config();
 import express, { Application } from "express";
 import { createServer } from "http";
 import { socketServerInstance } from "./utils/socket";
+import { prisma } from "./utils/prisma";
 
 async function runServer() {
   const app: Application = express();
   const PORT = process.env.PORT || 3000;
   const httpServer = createServer(app);
   app.use(express.json());
-  socketServerInstance(httpServer);
+  await socketServerInstance(httpServer);
   const gServer = new ApolloServer({
     typeDefs: `
     type Query {
-        hello:String
+  hello: [String]!
     }
     `,
     resolvers: {
       Query: {
-        hello: () => "Hello World",
+        hello: async () => {
+          try {
+            const result = await prisma.user.findMany();
+            console.log(result);
+            return result;
+          } catch (error) {
+            console.error("Database fetch failed:", error);
+            throw new Error("Could not fetch users from the database.");
+          }
+        },
       },
     },
   });
