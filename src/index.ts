@@ -14,17 +14,21 @@ async function runServer() {
   app.use(express.json());
   await socketServerInstance(httpServer);
   const gServer = new ApolloServer({
-    typeDefs: `
-    type Query {
-  hello: [String]!
-    }
+    typeDefs: /* GraphQL */ `
+      type User {
+        id: ID!
+        name: String
+        email: String
+      }
+      type Query {
+        users: [User]
+      }
     `,
     resolvers: {
       Query: {
-        hello: async () => {
+        users: async () => {
           try {
             const result = await prisma.user.findMany();
-            console.log(result);
             return result;
           } catch (error) {
             console.error("Database fetch failed:", error);
