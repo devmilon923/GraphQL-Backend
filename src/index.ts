@@ -8,12 +8,14 @@ import { socketServerInstance } from "./utils/socket";
 import { useGraphqlServer } from "./graphql";
 import passport from "passport";
 import { googleAuth } from "./strategies/route";
-
+import cors from "cors";
 async function runServer() {
   const app: Application = express();
   const PORT = process.env.PORT || 3000;
   const httpServer = createServer(app);
+
   app.use(express.json());
+  app.use(cors({ origin: "http://localhost:3001", credentials: true }));
   await socketServerInstance(httpServer);
 
   app.get("/", (req, res) => {
