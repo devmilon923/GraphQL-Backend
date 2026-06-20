@@ -4,13 +4,15 @@ model Session {
     user        User     @relation(references: [id], fields: [userId])
     os          String?
     browser     String?
-    deviceType  String?  @map("device_type")
     ipAddress   String?  @map("ip_address")
     country     String?
     city        String?
+    capital     String?
     accessToken String   @map("access_token")
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
+    isValid     Boolean  @default(false)
+    expireAt    DateTime @map("expire_at")
 
-    @@index([userId, ipAddress, accessToken])
+    @@index([userId, ipAddress, accessToken, expireAt, isValid])
 }

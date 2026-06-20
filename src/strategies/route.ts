@@ -1,6 +1,7 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import passport, { Profile } from "passport";
-import GoogleOAuth, { createUserPayload } from "./controller";
+import GoogleOAuthServices, { createUserPayload } from "./services";
+import OAuthController from "./controller";
 
 const router = Router();
 
@@ -18,20 +19,7 @@ router.get(
     failureRedirect: "/login",
     session: false,
   }),
-  async function (req, res) {
-    const profile = req.user as Profile;
-    const payload: createUserPayload = {
-      oauthid: profile.id,
-      name: profile.displayName,
-      email: profile.emails?.[0]?.value as string,
-      profile: profile.photos?.[0]?.value,
-      provider: profile.provider as "google" | "facebook",
-    };
-
-    const result = await GoogleOAuth.createUser(payload);
-    console.log(result);
-    res.redirect(process.env.FRONTEND as string);
-  },
+  OAuthController.handleAuth,
 );
 router.get(
   "/auth",

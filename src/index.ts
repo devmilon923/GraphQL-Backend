@@ -15,6 +15,7 @@ async function runServer() {
   const httpServer = createServer(app);
 
   app.use(express.json());
+  app.set("trust proxy", true);
   app.use(cors({ origin: "http://localhost:3001", credentials: true }));
   await socketServerInstance(httpServer);
 

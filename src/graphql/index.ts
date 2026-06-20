@@ -1,5 +1,4 @@
 import { ApolloServer } from "@apollo/server";
-import { prisma } from "../utils/prisma";
 import { User } from "./user";
 
 export async function useGraphqlServer() {

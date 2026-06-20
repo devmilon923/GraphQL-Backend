@@ -1,32 +1,23 @@
-import { prisma } from "../utils/prisma";
-export interface createUserPayload {
-  name: string;
-  email: string;
-  profile?: string;
-  provider?: "google" | "facebook";
-  oauthid: string;
-}
+import { Request, Response } from "express";
+import GoogleOAuthServices, { createUserPayload } from "./services";
+import { Profile } from "passport";
 
-class GoogleOAuth {
-  public static async createUser(payload: createUserPayload) {
-    try {
-      await prisma.user.create({
-        data: {
-          ...payload,
-        },
-      });
-      return {
-        isNew: true,
-      };
-    } catch (error: any) {
-      if (error.code === "P2002") {
-        return {
-          isNew: false,
-        };
-      } else {
-        throw error;
-      }
-    }
+class OAuthController {
+  public static async handleAuth(req: Request, res: Response) {
+    const sessionData = await GoogleOAuthServices.generateSessionData(req);
+    const profile = req.user as Profile;
+
+    const payload: createUserPayload = {
+      oauthid: profile.id,
+      name: profile.displayName,
+      email: profile.emails?.[0]?.value as string,
+      profile: profile.photos?.[0]?.value,
+      provider: profile.provider as "google" | "facebook",
+    };
+
+    await GoogleOAuthServices.createUser(payload);
+    await GoogleOAuthServices.updateSessionData(payload.email, sessionData);
+    res.redirect(process.env.FRONTEND as string);
   }
 }
-export default GoogleOAuth;
+export default OAuthController;
