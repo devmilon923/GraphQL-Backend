@@ -61,7 +61,6 @@ class GoogleOAuthServices {
       expireAt,
       isValid: true,
     };
-    console.log(details.capital);
     return details;
   }
   public static async updateSessionData(
@@ -75,7 +74,6 @@ class GoogleOAuthServices {
       if (!user) {
         throw new Error("This user is not valid user");
       }
-      console.log(payload);
       const result = await prisma.session.create({
         data: {
           ...payload,
@@ -83,7 +81,6 @@ class GoogleOAuthServices {
           isValid: true,
         },
       });
-      console.log(result);
       return result;
     } catch (error) {
       console.log(error);

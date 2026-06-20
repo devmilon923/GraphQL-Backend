@@ -6,7 +6,6 @@ class OAuthController {
   public static async handleAuth(req: Request, res: Response) {
     const sessionData = await GoogleOAuthServices.generateSessionData(req);
     const profile = req.user as Profile;
-
     const payload: createUserPayload = {
       oauthid: profile.id,
       name: profile.displayName,
@@ -15,9 +14,14 @@ class OAuthController {
       provider: profile.provider as "google" | "facebook",
     };
 
-    await GoogleOAuthServices.createUser(payload);
-    await GoogleOAuthServices.updateSessionData(payload.email, sessionData);
-    res.redirect(process.env.FRONTEND as string);
+    try {
+      await GoogleOAuthServices.createUser(payload);
+      await GoogleOAuthServices.updateSessionData(payload.email, sessionData);
+      res.redirect(process.env.FRONTEND as string);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Oauth login handler failed");
+    }
   }
 }
 export default OAuthController;
