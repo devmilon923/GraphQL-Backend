@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import GoogleOAuthServices, { createUserPayload } from "./services";
 import { Profile } from "passport";
 import QueueServices from "../queue/services";
-
+import { JwtPayload } from "jsonwebtoken";
+type JWTPayload = {
+  id: number;
+  email: string;
+} & JwtPayload;
 class OAuthController {
   public static async handleAuth(req: Request, res: Response) {
     // const sessionData = await GoogleOAuthServices.generateSessionData(req);
@@ -23,6 +27,14 @@ class OAuthController {
       console.log(error);
       throw new Error("Oauth login handler failed");
     }
+  }
+  public static async logout(req: Request, res: Response) {
+    const refreshToken = req.cookies("refreshToken");
+    const user = req.user as JWTPayload;
+    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
+    QueueServices.logoutSession(refreshToken, user.id);
+    res.send({ status: true, message: "logout success" });
   }
 }
 export default OAuthController;
