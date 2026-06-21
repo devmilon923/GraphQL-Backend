@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import GoogleOAuthServices, { createUserPayload } from "./services";
 import { Profile } from "passport";
+import QueueServices from "../queue/services";
 
 class OAuthController {
   public static async handleAuth(req: Request, res: Response) {
-    const sessionData = await GoogleOAuthServices.generateSessionData(req);
+    // const sessionData = await GoogleOAuthServices.generateSessionData(req);
     const profile = req.user as Profile;
     const payload: createUserPayload = {
       oauthid: profile.id,
@@ -16,7 +17,7 @@ class OAuthController {
 
     try {
       await GoogleOAuthServices.createUser(payload);
-      await GoogleOAuthServices.updateSessionData(payload.email, sessionData);
+      QueueServices.addSession(payload.email, req);
       res.redirect(process.env.FRONTEND as string);
     } catch (error) {
       console.log(error);

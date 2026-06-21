@@ -10,7 +10,7 @@ export interface createUserPayload {
   provider?: "google" | "facebook";
   oauthid: string;
 }
-interface SessionDataPayload {
+export interface SessionDataPayload {
   os: string | null;
   browser: string | null;
   ipAddress: string | null;
