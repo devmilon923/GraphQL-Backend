@@ -1,7 +1,6 @@
 import GoogleOAuthServices from "../strategies/services";
 import { Request } from "express";
 import { sessionQueue } from "./producers";
-import { tryCatch } from "bullmq";
 
 class QueueServices {
   public static async addSession(email: string, req: Request) {

@@ -8,31 +8,26 @@ console.log(
 new Worker(
   "sessionQueue",
   async (job) => {
-    const { email, sessionData } = job.data;
-    console.log("Session worker taking the job...");
-    await GoogleOAuthServices.updateSessionData(email, sessionData);
-    console.log("Session worker completed the job");
-  },
-  { connection: redisConnectionObj },
-);
+    switch (job.name) {
+      case "updateSessionData":
+        await GoogleOAuthServices.updateSessionData(
+          job.data.email,
+          job.data.sessionData,
+        );
+        break;
 
-new Worker(
-  "sessionQueue",
-  async (job) => {
-    const { refreshToken, userId } = job.data;
-    console.log("Session logout worker taking the job...");
-    await prisma.session.updateMany({
-      where: {
-        userId: userId,
-        refreshToken,
-        isValid: true,
-        expireAt: {
-          gt: new Date(),
-        },
-      },
-      data: { isValid: false, expireAt: new Date() },
-    });
-    console.log("Session logout worker completed the job");
+      case "logoutSession":
+        await prisma.session.updateMany({
+          where: {
+            userId: job.data.userId,
+            refreshToken: job.data.refreshToken,
+            isValid: true,
+            expireAt: { gt: new Date() },
+          },
+          data: { isValid: false, expireAt: new Date() },
+        });
+        break;
+    }
   },
   { connection: redisConnectionObj },
 );

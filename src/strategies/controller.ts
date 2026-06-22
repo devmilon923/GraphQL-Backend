@@ -9,7 +9,6 @@ type JWTPayload = {
 } & JwtPayload;
 class OAuthController {
   public static async handleAuth(req: Request, res: Response) {
-    // const sessionData = await GoogleOAuthServices.generateSessionData(req);
     const profile = req.user as Profile;
     const payload: createUserPayload = {
       oauthid: profile.id,

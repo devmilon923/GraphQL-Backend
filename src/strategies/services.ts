@@ -17,7 +17,7 @@ export interface SessionDataPayload {
   country: string | null;
   capital: string;
   city: string | null;
-  accessToken: string;
+  refreshToken: string;
   isValid: boolean;
   expireAt: Date;
 }
@@ -57,7 +57,7 @@ class GoogleOAuthServices {
       capital: response.data.country_capital,
       os: usInfo.os.name as string,
       browser: usInfo.browser.name as string,
-      accessToken: "s",
+      refreshToken: "s",
       expireAt,
       isValid: true,
     };

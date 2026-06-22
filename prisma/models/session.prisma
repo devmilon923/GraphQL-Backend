@@ -1,18 +1,19 @@
 model Session {
-    id          Int      @id @unique @default(autoincrement())
-    userId      Int      @map("user_id")
-    user        User     @relation(references: [id], fields: [userId])
-    os          String?
-    browser     String?
-    ipAddress   String?  @map("ip_address")
-    country     String?
-    city        String?
-    capital     String?
-    accessToken String   @map("access_token")
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    isValid     Boolean  @default(false)
-    expireAt    DateTime @map("expire_at")
+    id           Int      @id @unique @default(autoincrement())
+    userId       Int      @map("user_id")
+    user         User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+    os           String?
+    browser      String?
+    ipAddress    String?  @map("ip_address")
+    country      String?
+    city         String?
+    capital      String?
+    refreshToken String   @map("refresh_token")
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    isValid      Boolean  @default(false)
+    expireAt     DateTime @map("expire_at")
 
-    @@index([userId, ipAddress, accessToken, expireAt, isValid])
+    @@unique([ipAddress, refreshToken, userId])
+    @@index([expireAt, isValid])
 }
