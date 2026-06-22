@@ -18,9 +18,9 @@ class QueueServices {
       console.error("Failed to add session on queue");
     }
   }
-  public static async logoutSession(refreshToken: string, userId: number) {
+  public static async logoutSession(refreshToken: string) {
     try {
-      await sessionQueue.add("logoutSession", { refreshToken, userId });
+      await sessionQueue.add("logoutSession", { refreshToken });
       console.log("Session logout action added on queue");
     } catch (error) {
       console.log(error);

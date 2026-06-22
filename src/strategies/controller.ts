@@ -62,7 +62,7 @@ class OAuthController {
     const user = req.user as JWTPayload;
     res.clearCookie("refreshToken");
     res.clearCookie("accessToken");
-    QueueServices.logoutSession(refreshToken, user.id);
+    QueueServices.logoutSession(refreshToken);
     res.send({ status: true, message: "logout success" });
   }
 }

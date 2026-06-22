@@ -1,7 +1,7 @@
 model User {
-  id        Int           @id @default(autoincrement())
+  id        Int           @id @unique @default(autoincrement())
   name      String
-  email     String        @unique
+  email     String
   profile   String?
   oauthid   String
   provider  providerEnum? @default(google)
@@ -10,7 +10,7 @@ model User {
   sessionId Session[]
   role      roleEnum      @default(user)
 
-  @@unique([id, oauthid, email])
+  @@unique([oauthid, email], name: "uniqueUser")
 }
 
 enum providerEnum {

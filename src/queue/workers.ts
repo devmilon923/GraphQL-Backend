@@ -2,6 +2,8 @@ import { Worker } from "bullmq";
 import GoogleOAuthServices from "../strategies/services";
 import { redisConnectionObj } from "./producers";
 import { prisma } from "../utils/prisma";
+import jwt from "jsonwebtoken";
+import { JWTPayload } from "../strategies/controller";
 console.log(
   "All background workers are active now. Please keep this window open....",
 );
@@ -10,23 +12,31 @@ new Worker(
   async (job) => {
     switch (job.name) {
       case "updateSessionData":
-        await GoogleOAuthServices.updateSessionData(
-          job.data.email,
-          job.data.sessionData,
-          job.data.rftoken,
-        );
+        const { sessionData, rftoken } = job.data;
+        await GoogleOAuthServices.updateSessionData(sessionData, rftoken);
         break;
 
       case "logoutSession":
-        await prisma.session.update({
+        const { refreshToken } = job.data;
+        const payload = jwt.decode(refreshToken) as JWTPayload;
+
+        const user: any = await prisma.user.findUnique({
+          where: {
+            uniqueUser: { oauthid: payload.oauthid, email: payload.email },
+          },
+          select: {
+            id: true,
+          },
+        });
+        if (!user) break;
+
+        await prisma.session.delete({
           where: {
             uniqueSession: {
-              userId: job.data.userId,
-              refreshToken: job.data.refreshToken,
-              expireAt: { gt: new Date() },
+              userId: user.id,
+              refreshToken: refreshToken,
             },
           },
-          data: { expireAt: new Date() },
         });
         break;
     }

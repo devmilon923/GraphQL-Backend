@@ -20,7 +20,6 @@ export interface SessionDataPayload {
   capital: string;
   city: string | null;
   refreshToken: string;
-  isValid: boolean;
   expireAt: Date;
 }
 interface TokenGeneratePayload {
@@ -67,18 +66,22 @@ class GoogleOAuthServices {
       browser: usInfo.browser.name as string,
       refreshToken: "s",
       expireAt,
-      isValid: true,
     };
     return details;
   }
   public static async updateSessionData(
-    email: string,
     payload: SessionDataPayload,
     rftoken: string,
   ) {
     try {
+      const jwtpayload = jwt.decode(rftoken) as JWTPayload;
       const user = await prisma.user.findUnique({
-        where: { email: email },
+        where: {
+          uniqueUser: {
+            email: jwtpayload.email,
+            oauthid: jwtpayload.oauthid,
+          },
+        },
       });
       if (!user) {
         throw new Error("This user is not valid user");
@@ -89,7 +92,6 @@ class GoogleOAuthServices {
           ...payload,
           user: { connect: { id: user.id } },
           refreshToken: rftoken,
-          isValid: true,
           expireAt,
         },
       });
