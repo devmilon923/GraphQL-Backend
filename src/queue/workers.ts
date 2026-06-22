@@ -13,18 +13,20 @@ new Worker(
         await GoogleOAuthServices.updateSessionData(
           job.data.email,
           job.data.sessionData,
+          job.data.rftoken,
         );
         break;
 
       case "logoutSession":
-        await prisma.session.updateMany({
+        await prisma.session.update({
           where: {
-            userId: job.data.userId,
-            refreshToken: job.data.refreshToken,
-            isValid: true,
-            expireAt: { gt: new Date() },
+            uniqueSession: {
+              userId: job.data.userId,
+              refreshToken: job.data.refreshToken,
+              expireAt: { gt: new Date() },
+            },
           },
-          data: { isValid: false, expireAt: new Date() },
+          data: { expireAt: new Date() },
         });
         break;
     }

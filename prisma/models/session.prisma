@@ -11,9 +11,8 @@ model Session {
     refreshToken String   @map("refresh_token")
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
-    isValid      Boolean  @default(false)
     expireAt     DateTime @map("expire_at")
 
-    @@unique([ipAddress, refreshToken, userId])
-    @@index([expireAt, isValid])
+    @@unique([refreshToken, userId], name: "uniqueSession")
+    @@index([expireAt])
 }

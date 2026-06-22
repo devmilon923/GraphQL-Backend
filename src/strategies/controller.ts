@@ -3,9 +3,10 @@ import GoogleOAuthServices, { createUserPayload } from "./services";
 import { Profile } from "passport";
 import QueueServices from "../queue/services";
 import { JwtPayload } from "jsonwebtoken";
-type JWTPayload = {
-  id: number;
+export type JWTPayload = {
+  oauthid: string;
   email: string;
+  role: "admin" | "user";
 } & JwtPayload;
 class OAuthController {
   public static async handleAuth(req: Request, res: Response) {
@@ -19,9 +20,38 @@ class OAuthController {
     };
 
     try {
-      await GoogleOAuthServices.createUser(payload);
-      QueueServices.addSession(payload.email, req);
-      res.redirect(process.env.FRONTEND as string);
+      const user = await GoogleOAuthServices.createUser(payload);
+
+      const actoken = await GoogleOAuthServices.genarateToken({
+        data: {
+          email: payload.email,
+          oauthid: payload.oauthid,
+          role: user.role as "admin" | "user",
+        },
+        type: "access",
+      });
+      const rftoken = await GoogleOAuthServices.genarateToken({
+        data: {
+          email: payload.email,
+          oauthid: payload.oauthid,
+          role: user.role as "admin" | "user",
+        },
+        type: "access",
+      });
+      res.cookie("act", actoken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production" ? true : false,
+        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+        maxAge: 60 * 2 * 1000, // 2 minute
+      });
+      res.cookie("rft", rftoken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production" ? true : false,
+        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+        maxAge: 24 * 7 * 60 * 60 * 1000, // 7 days
+      });
+      QueueServices.addSession(payload.email, req, rftoken);
+      return res.redirect(process.env.FRONTEND as string);
     } catch (error) {
       console.log(error);
       throw new Error("Oauth login handler failed");

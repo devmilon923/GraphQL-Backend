@@ -3,6 +3,8 @@ import { prisma } from "../utils/prisma";
 import { addDays } from "date-fns";
 import { UAParser } from "ua-parser-js";
 import axios from "axios";
+import { JWTPayload } from "./controller";
+import jwt from "jsonwebtoken";
 export interface createUserPayload {
   name: string;
   email: string;
@@ -21,6 +23,10 @@ export interface SessionDataPayload {
   isValid: boolean;
   expireAt: Date;
 }
+interface TokenGeneratePayload {
+  data: JWTPayload;
+  type: "access" | "refresh";
+}
 class GoogleOAuthServices {
   public static async createUser(payload: createUserPayload) {
     try {
@@ -28,15 +34,17 @@ class GoogleOAuthServices {
         data: {
           ...payload,
         },
+        select: { role: true, id: true },
       });
       return {
         isNew: true,
-        userId: result.id,
+        role: result.role,
       };
     } catch (error: any) {
       if (error.code === "P2002") {
         return {
           isNew: false,
+          role: "user",
         };
       } else {
         throw error;
@@ -66,6 +74,7 @@ class GoogleOAuthServices {
   public static async updateSessionData(
     email: string,
     payload: SessionDataPayload,
+    rftoken: string,
   ) {
     try {
       const user = await prisma.user.findUnique({
@@ -74,11 +83,14 @@ class GoogleOAuthServices {
       if (!user) {
         throw new Error("This user is not valid user");
       }
+      const expireAt = addDays(new Date(), 7);
       const result = await prisma.session.create({
         data: {
           ...payload,
           user: { connect: { id: user.id } },
+          refreshToken: rftoken,
           isValid: true,
+          expireAt,
         },
       });
       return result;
@@ -86,6 +98,22 @@ class GoogleOAuthServices {
       console.log(error);
       throw new Error("Session creation failed");
     }
+  }
+  public static async genarateToken(payload: TokenGeneratePayload) {
+    let token;
+    if (payload.type === "access") {
+      token = jwt.sign(payload.data, process.env.HASH_SEC as string, {
+        expiresIn: 60 * 2 * 1000, // 2 minute
+      });
+    } else if (payload.type === "refresh") {
+      token = jwt.sign(payload.data, process.env.HASH_SEC as string, {
+        expiresIn: "7 days",
+      });
+    } else {
+      throw new Error("Invalid token request");
+    }
+
+    return token;
   }
 }
 export default GoogleOAuthServices;
