@@ -58,11 +58,13 @@ class OAuthController {
     }
   }
   public static async logout(req: Request, res: Response) {
-    const refreshToken = req.cookies("refreshToken");
+    const refreshToken = req.cookies.refreshToken;
     const user = req.user as JWTPayload;
-    res.clearCookie("refreshToken");
-    res.clearCookie("accessToken");
+    console.log(refreshToken);
+    res.clearCookie("rft");
+    res.clearCookie("act");
     QueueServices.logoutSession(refreshToken);
+    throw new Error("Failed");
     res.send({ status: true, message: "logout success" });
   }
 }

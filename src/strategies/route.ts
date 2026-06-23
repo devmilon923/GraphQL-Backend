@@ -1,6 +1,5 @@
-import { Request, Response, Router } from "express";
-import passport, { Profile } from "passport";
-import GoogleOAuthServices, { createUserPayload } from "./services";
+import { Router } from "express";
+import passport from "passport";
 import OAuthController from "./controller";
 
 const router = Router();
@@ -28,5 +27,5 @@ router.get(
     session: false,
   }),
 );
-
+router.get("/logout", OAuthController.logout);
 export const googleAuth = router;

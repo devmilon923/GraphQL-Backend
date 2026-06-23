@@ -1,7 +1,9 @@
 import { expressMiddleware } from "@as-integrations/express5";
 import dotenv from "dotenv";
 dotenv.config();
+import cookieParser from "cookie-parser";
 import "./strategies/google";
+
 import express, { Application } from "express";
 import { createServer } from "http";
 import { socketServerInstance } from "./utils/socket";
@@ -16,6 +18,7 @@ async function runServer() {
   const httpServer = createServer(app);
 
   app.use(express.json());
+  app.use(cookieParser());
   app.set("trust proxy", true);
   app.use(cors({ origin: "http://localhost:3001", credentials: true }));
   await socketServerInstance(httpServer);
