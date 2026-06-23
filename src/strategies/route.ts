@@ -27,5 +27,5 @@ router.get(
     session: false,
   }),
 );
-router.get("/logout", OAuthController.logout);
+
 export const googleAuth = router;

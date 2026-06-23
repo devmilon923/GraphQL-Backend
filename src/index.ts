@@ -12,6 +12,7 @@ import passport from "passport";
 import { googleAuth } from "./strategies/route";
 import cors from "cors";
 import { redisCon } from "./utils/redis";
+import OAuthController from "./strategies/controller";
 async function runServer() {
   const app: Application = express();
   const PORT = process.env.PORT || 3000;
@@ -31,6 +32,8 @@ async function runServer() {
   }
   app.use(passport.initialize());
   app.use("/google", googleAuth);
+  app.get("/logout", OAuthController.logout);
+  app.get("/renew", OAuthController.renewToken);
   app.use("/gq", expressMiddleware(await useGraphqlServer()));
   httpServer.listen(PORT, () =>
     console.log(`Server is running on port ${PORT}`),
