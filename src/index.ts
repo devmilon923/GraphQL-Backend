@@ -33,8 +33,8 @@ async function runServer() {
     console.log("Redis connected");
   }
   app.use(passport.initialize());
-  app.use(authValidation);
   app.use("/google", googleAuth);
+  app.use(authValidation);
   app.get("/logout", OAuthController.logout);
   app.get("/renew", OAuthController.renewToken);
   app.use(

@@ -1,7 +1,9 @@
 import { prisma } from "../../utils/prisma";
+import { isAuthenticated } from "../../utils/shield";
 
 const queries = {
-  users: async () => {
+  users: async (_, __, ctx) => {
+    await isAuthenticated(["admin", "user"], ctx);
     try {
       const result = await prisma.user.findMany();
       return result;

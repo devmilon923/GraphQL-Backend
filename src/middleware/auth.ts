@@ -6,9 +6,15 @@ export async function authValidation(
   next: NextFunction,
 ) {
   const token = req.cookies.act || null;
-  if (!token) req.user = undefined;
+  if (!token) {
+    req.user = undefined;
+    return next();
+  }
   const payload = jwt.verify(token, process.env.HASH_SEC as string);
-  if (!payload) req.user;
+  if (!payload) {
+    req.user = undefined;
+    return next();
+  }
   req.user = payload;
-  next();
+  return next();
 }
