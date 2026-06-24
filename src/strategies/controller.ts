@@ -4,6 +4,7 @@ import { Profile } from "passport";
 import QueueServices from "../queue/services";
 import { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
+import { sendResponse } from "../utils/response";
 export type JWTPayload = {
   oauthid: string;
   email: string;
@@ -58,7 +59,10 @@ class OAuthController {
       return res.redirect(process.env.FRONTEND as string);
     } catch (error) {
       console.log(error);
-      throw new Error("Oauth login handler failed");
+      return sendResponse(res, {
+        code: 404,
+        message: "Oauth login handler failed",
+      });
     }
   }
 
@@ -70,8 +74,10 @@ class OAuthController {
     if (refreshToken) {
       QueueServices.logoutSession(refreshToken);
     }
-
-    res.send({ status: true, message: "logout success" });
+    return sendResponse(res, {
+      code: 200,
+      message: "Logout success",
+    });
   }
 
   public static async renewToken(req: Request, res: Response) {
@@ -114,7 +120,10 @@ class OAuthController {
       maxAge: 24 * 7 * 60 * 60 * 1000, // 7 days
     });
     QueueServices.addSession(payload.email, req, rftoken);
-    return res.send({ status: true, message: "renew success" });
+    return sendResponse(res, {
+      code: 200,
+      message: "Token renew success",
+    });
   }
 }
 export default OAuthController;
