@@ -14,6 +14,7 @@ import cors from "cors";
 import { redisCon } from "./utils/redis";
 import OAuthController from "./strategies/controller";
 import { contextHandler } from "./utils/context";
+import { authValidation } from "./middleware/auth";
 async function runServer() {
   const app: Application = express();
   const PORT = process.env.PORT || 3000;
@@ -32,6 +33,7 @@ async function runServer() {
     console.log("Redis connected");
   }
   app.use(passport.initialize());
+  app.use(authValidation);
   app.use("/google", googleAuth);
   app.get("/logout", OAuthController.logout);
   app.get("/renew", OAuthController.renewToken);
