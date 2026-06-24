@@ -4,14 +4,6 @@ import OAuthController from "./controller";
 
 const router = Router();
 
-router.get("/", (req, res) => {
-  res.send(`
-    <a href="${process.env.BACKEND}/google/auth">
-      <button>Login with Google</button>
-    </a>
-  `);
-});
-
 router.get(
   "/auth/cb",
   passport.authenticate("google", {

@@ -24,7 +24,6 @@ class OAuthController {
 
     try {
       const user = await GoogleOAuthServices.createUser(payload);
-
       const actoken = await GoogleOAuthServices.genarateToken({
         data: {
           email: payload.email,
