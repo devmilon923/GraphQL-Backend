@@ -1,15 +1,28 @@
+import { GraphQLError } from "graphql";
 import { JWTPayload } from "../strategies/controller";
 
 export const isAuthenticated = async (
-  role: ["admin", "user"],
+  roles: ("admin" | "user")[], // Allows flexible arrays like ["admin"]
   ctx: { user: JWTPayload | undefined },
 ) => {
-  console.log(ctx.user);
   if (!ctx.user) {
-    throw new Error("Unauthorized");
+    throw new GraphQLError("You must be logged in to view this resource.", {
+      extensions: {
+        code: "UNAUTHORIZED",
+        http: { status: 401 },
+      },
+    });
   }
 
-  if (!role.includes(ctx.user.role)) {
-    throw new Error("Forbidden");
+  if (!roles.includes(ctx.user.role as any)) {
+    throw new GraphQLError(
+      "You do not have permission to access this resource.",
+      {
+        extensions: {
+          code: "FORBIDDEN",
+          http: { status: 403 },
+        },
+      },
+    );
   }
 };

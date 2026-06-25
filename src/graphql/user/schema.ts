@@ -5,7 +5,7 @@ export const schema = /* GraphQL */ `
     email: String
   }
   type Query {
-    users: [User]
+    user: User
   }
   type Mutation {
     createUser: String

@@ -2,10 +2,19 @@ import { prisma } from "../../utils/prisma";
 import { isAuthenticated } from "../../utils/shield";
 
 const queries = {
-  users: async (_, __, ctx) => {
+  user: async (_, __, ctx) => {
     await isAuthenticated(["admin", "user"], ctx);
     try {
-      const result = await prisma.user.findMany();
+      // console.log(ctx.user);
+      const result = await prisma.user.findUnique({
+        where: {
+          uniqueUser: {
+            oauthid: ctx.user.oauthid,
+            email: ctx.user.email,
+          },
+        },
+      });
+
       return result;
     } catch (error) {
       console.error("Database fetch failed:", error);
