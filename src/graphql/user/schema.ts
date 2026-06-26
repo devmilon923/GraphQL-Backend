@@ -3,6 +3,11 @@ export const schema = /* GraphQL */ `
     id: ID!
     name: String
     email: String
+    role: String
+    profile: String
+    oauthid: String
+    provider: String
+    createdAt: String
   }
   type Query {
     user: User
