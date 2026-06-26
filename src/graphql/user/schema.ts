@@ -1,4 +1,5 @@
 export const schema = /* GraphQL */ `
+  scalar Date
   type User {
     id: ID!
     name: String
@@ -7,7 +8,7 @@ export const schema = /* GraphQL */ `
     profile: String
     oauthid: String
     provider: String
-    createdAt: String
+    createdAt: Date!
   }
   type Query {
     user: User
