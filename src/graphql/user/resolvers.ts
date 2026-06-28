@@ -23,7 +23,6 @@ const queries = {
 };
 
 const mutations = {
-  createUser: async () => "Hello",
   updateProfile: async (_, { payload }, ctx) => {
     await isAuthenticated(["admin"], ctx);
     try {

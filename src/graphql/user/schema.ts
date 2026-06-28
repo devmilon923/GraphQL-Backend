@@ -19,7 +19,6 @@ export const schema = /* GraphQL */ `
     user: User
   }
   type Mutation {
-    createUser: String
     updateProfile(payload: UserInput): User
   }
 `;
