@@ -5,7 +5,6 @@ const queries = {
   user: async (_, __, ctx) => {
     await isAuthenticated(["admin", "user"], ctx);
     try {
-      // console.log(ctx.user);
       const result = await prisma.user.findUnique({
         where: {
           uniqueUser: {
@@ -25,6 +24,22 @@ const queries = {
 
 const mutations = {
   createUser: async () => "Hello",
+  updateProfile: async (_, { payload }, ctx) => {
+    await isAuthenticated(["admin"], ctx);
+    try {
+      const result = await prisma.user.update({
+        where: {
+          id: ctx.user.id,
+        },
+        data: {
+          payload,
+        },
+      });
+      return result;
+    } catch (error) {
+      throw new Error("Could not fetch users from the database.");
+    }
+  },
 };
 
 export const resolvers = { queries, mutations };

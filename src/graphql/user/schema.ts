@@ -1,19 +1,25 @@
 export const schema = /* GraphQL */ `
   scalar Date
   type User {
-    id: ID!
+    id: ID
     name: String
     email: String
     role: String
     profile: String
     oauthid: String
     provider: String
-    createdAt: Date!
+    createdAt: Date
+  }
+  input UserInput {
+    name: String
+    email: String
+    profile: String
   }
   type Query {
     user: User
   }
   type Mutation {
     createUser: String
+    updateProfile(payload: UserInput): User
   }
 `;
